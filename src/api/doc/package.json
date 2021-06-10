@@ -1,0 +1,20 @@
+{
+  "name": "loadingbay_api_doc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "php -S localhost:10002 -t public",
+    "build": "grunt",
+    "watch": "concurrently \"grunt runwatch\" \"npm run serve\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "grunt": "^1.1.0",
+    "grunt-apidoc": "^0.11.0",
+    "grunt-contrib-watch": "^1.1.0"
+  }
+}

@@ -1,0 +1,67 @@
+version: '3.7'
+
+services:
+  cms:
+    build: .
+    container_name: mini_aspire_cms
+    restart: unless-stopped
+    ports:
+      - "${CMS_PORT}:80"
+    environment:
+      TZ: "${TIMEZONE}"
+    volumes:
+      - ./_conf/cms.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./_logs/cms:/var/log/apache2/
+      - ./src/cms:/var/www/html
+    networks:
+      - app-network
+  api:
+    build: .
+    container_name: mini_aspire_api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT}:80"
+    environment:
+      TZ: "${TIMEZONE}"
+    volumes:
+      - ./_conf/api.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./_logs/api:/var/log/apache2/
+      - ./src/api:/var/www/html
+    networks:
+      - app-network
+  db:
+    image: mysql:5.7
+    container_name: mini_aspire_db
+    volumes:
+      - ./_conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+      - ./_logs/mysql:/var/log/mysql
+      - ./_data/db:/var/lib/mysql
+    restart: always
+    environment:
+      TZ: "${TIMEZONE}"
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mini_aspire
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - '${DB_PORT}:3306'
+    networks:
+      - app-network
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.0.2
+    container_name: mini_aspire_phpmyadmin
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - '${PHPMYADMIN_PORT}:80'
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+      UPLOAD_LIMIT: 10000000
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
