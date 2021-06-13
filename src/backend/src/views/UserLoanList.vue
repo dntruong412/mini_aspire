@@ -1,5 +1,21 @@
 <template>
   <div>
+    <paginate
+      v-if="pageCount > 0"
+      :page-count="pageCount"
+      :click-handler="changePage"
+      :prev-text="'Prev'"
+      :next-text="'Next'"
+      :container-class="'pagination'"
+      :page-class="'page-item'"
+      :prev-class="'page-item'"
+      :next-class="'page-item'"
+      :page-link-class="'page-link'"
+      :prev-link-class="'page-link'"
+      :next-link-class="'page-link'"
+    >
+    </paginate>
+
     <table class="table table-bordered table-striped table-sm">
       <thead>
         <tr class="bg-light">
@@ -13,7 +29,7 @@
           <th class="text-center">Payment<br />status</th>
           <th class="text-center">Created</th>
           <th class="text-center">Updated</th>
-          <th class="text-center" colspan="2">&nbsp;</th>
+          <th class="text-center">&nbsp;</th>
         </tr>
       </thead>
       <tbody>
@@ -30,14 +46,11 @@
           <td>{{ loan.updated_at }}</td>
           <td class="text-center">
             <router-link
-              class="btn btn-primary btn-sm"
+              class="btn btn-link"
               :to="{ name: 'user_loan_detail', params: { user_id: user_id, user_loan_id: loan.id } }"
             >
-              <i class="fas fa-info"></i>
               Detail
             </router-link>
-          </td>
-          <td>
             <router-link
               v-if="isNotPaid(loan.payment_status)"
               class="btn btn-link"
@@ -66,6 +79,7 @@ export default {
   data() {
     return {
       loans: [],
+      pageCount: 0,
     };
   },
   filters: {
@@ -76,15 +90,21 @@ export default {
       return value == 2 ? 'Paid' : '_';
     },
   },
-  async created() {
-    const { data } = await this.$store.dispatch(USER_GET_LOANS, {
-      user_id: this.user_id,
-    });
-    this.loans = data;
+  created() {
+    this.changePage(1);
   },
   methods: {
     isNotPaid(payment_status) {
       return payment_status != 2;
+    },
+    async changePage(pageNumber) {
+      const { data } = await this.$store.dispatch(USER_GET_LOANS, {
+        user_id: this.user_id,
+        query: {
+          page: pageNumber,
+        },
+      });
+      this.loans = data;
     },
   },
 };

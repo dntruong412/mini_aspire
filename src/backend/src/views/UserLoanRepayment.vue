@@ -6,7 +6,7 @@
         <FormMessage ref="formMessage"></FormMessage>
         <div class="row mb-3">
           <div class="col-6 col-sm-4">
-            <label for="amount" class="form-label">Amount</label>
+            <label for="amount" class="form-label fw-bold">Amount</label>
             <input type="number" class="form-control text-right" id="amount" v-model="repaymentAmount" />
           </div>
         </div>
@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <UserLoanDetail ref='userLoanDetail' class="col-12 mt-3" :user_id='user_id' :user_loan_id='user_loan_id'/>
+    <UserLoanDetail ref="userLoanDetail" class="col-12 mt-3" :user_id="user_id" :user_loan_id="user_loan_id" />
   </form>
 </template>
 
@@ -42,12 +42,12 @@ export default {
   },
   data() {
     return {
-      repaymentAmount: 0
+      repaymentAmount: 0,
     };
   },
   computed: {
     ...mapState({
-      loan: state => state.users.loan
+      loan: (state) => state.users.loan,
     }),
     monthlyMinRepayment() {
       return calculateMonthlyMinRepayment({
@@ -77,6 +77,7 @@ export default {
           },
         });
         this.$refs.userLoanDetail.getLoan();
+        this.$refs.userLoanDetail.getLoanRepayments();
       } catch (error) {
         console.error(error);
       }

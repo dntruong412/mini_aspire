@@ -30,13 +30,27 @@ export default {
         return data;
     },
 
+    async getUserLoans(user_id, query = {}) {
+        const config = {
+            method: 'get',
+            url: `${resource}/${user_id}/loan`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            params: query,
+        };
+        const { data } = await axios(config);
+
+        return data;
+    },
+
     async getUserLoan(user_id, user_loan_id) {
         const config = {
             method: 'get',
             url: `${resource}/${user_id}/loan/${user_loan_id}`,
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
         };
         const { data } = await axios(config);
 
@@ -49,20 +63,7 @@ export default {
             url: `${resource}/${user_id}/loan/${user_loan_id}/repayments`,
             headers: {
                 'Content-Type': 'application/json',
-            }
-        };
-        const { data } = await axios(config);
-
-        return data;
-    },
-
-    async getUserLoans(user_id) {
-        const config = {
-            method: 'get',
-            url: `${resource}/${user_id}/loan`,
-            headers: {
-                'Content-Type': 'application/json',
-            }
+            },
         };
         const { data } = await axios(config);
 

@@ -15,12 +15,7 @@ export default {
         loans: [],
         user: null,
         loan: null,
-        loan_repayments: []
-    },
-    getters: {
-        availableUsers: (state) => {
-            return state.users?.data || [];
-        },
+        loan_repayments: [],
     },
     mutations: {
         [GET_USERS](state, users) {
@@ -42,11 +37,15 @@ export default {
     actions: {
         async [GET_USERS](context, query = {}) {
             const UserRepository = RepositoryFactory.get('User');
+            let users = [];
             if (Object.keys(query).length > 0) {
-                context.commit(GET_USERS, await UserRepository.getUsers(query));
-                return;
+                users = await UserRepository.getUsers(query);
+            } else {
+                users = await UserRepository.getUsers();
             }
-            context.commit(GET_USERS, await UserRepository.getUsers());
+            context.commit(GET_USERS, users?.data || []);
+
+            return users;
         },
         async [GET_USER](context, user_id) {
             try {
@@ -54,16 +53,20 @@ export default {
                 if (result.status == 1) {
                     context.commit(GET_USER, result.data);
                 }
+                return result;
             } catch (error) {
                 return error.response ? error.response.data : error;
             }
         },
-        async [USER_GET_LOANS](context, { user_id }) {
+        async [USER_GET_LOANS](context, { user_id, query = {} }) {
             const UserRepository = RepositoryFactory.get('User');
-            const loans = await UserRepository.getUserLoans(user_id);
-            if (loans.status == 1) {
-                context.commit(USER_GET_LOANS, loans.data);
+            let loans = null;
+            if (Object.keys(query).length > 0) {
+                loans = await UserRepository.getUserLoans(user_id, query);
+            } else {
+                loans = await UserRepository.getUserLoans(user_id);
             }
+            context.commit(USER_GET_LOANS, loans?.data || []);
             return loans;
         },
         async [USER_GET_LOAN](context, { user_id, user_loan_id }) {

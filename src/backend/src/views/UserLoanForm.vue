@@ -5,13 +5,13 @@
         <FormMessage ref="formMessage"></FormMessage>
         <div class="row mb-3">
           <div class="col-6 col-sm-4">
-            <label for="amount" class="form-label">Amount</label>
+            <label for="amount" class="form-label fw-bold">Amount</label>
             <input type="number" class="form-control text-right" id="amount" v-model="amount" />
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-6 col-sm-4">
-            <label for="duration" class="form-label">Duration (months)</label>
+            <label for="duration" class="form-label fw-bold">Duration (months)</label>
             <select class="form-select" id="duration" v-model="duration">
               <option v-for="(item, index) in durationMapping" :key="`duration_${index}`">
                 {{ item.duration }}
@@ -19,14 +19,14 @@
             </select>
           </div>
           <div class="col-6 col-sm-4">
-            <label for="interest_rate" class="form-label">Interest rate</label>
+            <label for="interest_rate" class="form-label fw-bold">Interest rate</label>
             <div class="input-group">
               <input type="number" class="form-control text-right" id="interest_rate" v-model="interest_rate" />
               <span class="input-group-text" id="basic-addon1">%</span>
             </div>
           </div>
           <div class="col-6 col-sm-4">
-            <label for="repayment_frequency" class="form-label">Repayment frequency</label>
+            <label for="repayment_frequency" class="form-label fw-bold">Repayment frequency</label>
             <input
               type="number"
               class="form-control text-right"
@@ -38,13 +38,13 @@
         </div>
         <div class="row mb-3">
           <div class="col-6 col-sm-4">
-            <label for="arrangement_fee" class="form-label">Arrangement fee</label>
+            <label for="arrangement_fee" class="form-label fw-bold">Arrangement fee</label>
             <input type="number" class="form-control text-right" id="arrangement_fee" v-model="arrangement_fee" />
           </div>
         </div>
         <div class="row mb-4">
           <div class="col-6 col-sm-4">
-            <label for="arrangement_fee" class="form-label">Monthly min repayment</label>
+            <label for="arrangement_fee" class="form-label fw-bold">Monthly min repayment</label>
             <input class="form-control text-right" :value="minMonthlyRepayment" disabled="disabled" />
           </div>
         </div>
@@ -123,6 +123,15 @@ export default {
         console.error(error);
       }
       this.$refs.formMessage.display(result);
+      if (result.status == 1) {
+        this.$router.push({
+          name: 'user_loan_detail',
+          params: {
+            user_id: this.user_id,
+            user_loan_id: result.data.id,
+          },
+        });
+      }
     },
   },
 };

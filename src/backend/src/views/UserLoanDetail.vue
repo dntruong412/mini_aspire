@@ -52,7 +52,7 @@
         </thead>
         <tbody>
           <tr v-for="(payment, index) in loan_repayments" :key="payment.id">
-            <td>{{ index + 1 }}</td>
+            <td class="fw-bold">{{ index + 1 }}</td>
             <td>{{ payment.amount | to_currency }}</td>
             <td>{{ payment.created_at }}</td>
           </tr>
@@ -61,10 +61,7 @@
     </div>
 
     <p>
-      <router-link
-        class="btn btn-link"
-        :to="{ name: 'user_loans', params: { user_id: user_id } }"
-      >
+      <router-link class="btn btn-link" :to="{ name: 'user_loans', params: { user_id: user_id } }">
         Back
       </router-link>
     </p>
