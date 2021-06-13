@@ -8,6 +8,13 @@
             <label for="amount" class="form-label fw-bold">Amount</label>
             <input type="number" class="form-control text-right" id="amount" v-model="amount" />
           </div>
+          <div class="error" v-if="!$v.amount.required">Field is required</div>
+          <div class="error" v-if="!$v.amount.numeric">
+            Amount must be numeric.
+          </div>
+          <div class="error" v-if="!$v.amount.minValue">
+            Amount must be greater than {{$v.amount.$params.minValue.min}}.
+          </div>
         </div>
         <div class="row mb-3">
           <div class="col-6 col-sm-4">
@@ -17,12 +24,20 @@
                 {{ item.duration }}
               </option>
             </select>
+            <div class="error" v-if="!$v.duration.required">Field is required</div>
+            <div class="error" v-if="!$v.duration.between">
+              Duration must be between {{ $v.duration.$params.between.min }} and {{ $v.duration.$params.between.max }}.
+            </div>
           </div>
           <div class="col-6 col-sm-4">
             <label for="interest_rate" class="form-label fw-bold">Interest rate</label>
             <div class="input-group">
               <input type="number" class="form-control text-right" id="interest_rate" v-model="interest_rate" />
               <span class="input-group-text" id="basic-addon1">%</span>
+            </div>
+            <div class="error" v-if="!$v.interest_rate.required">Field is required</div>
+            <div class="error" v-if="!$v.interest_rate.numeric">
+              Interest rate must be numeric.
             </div>
           </div>
           <div class="col-6 col-sm-4">
@@ -41,6 +56,10 @@
             <label for="arrangement_fee" class="form-label fw-bold">Arrangement fee</label>
             <input type="number" class="form-control text-right" id="arrangement_fee" v-model="arrangement_fee" />
           </div>
+          <div class="error" v-if="!$v.arrangement_fee.required">Field is required</div>
+          <div class="error" v-if="!$v.arrangement_fee.numeric">
+            Arrangement fee must be numeric.
+          </div>
         </div>
         <div class="row mb-4">
           <div class="col-6 col-sm-4">
@@ -55,14 +74,23 @@
   </form>
 </template>
 
+<style lang="css">
+.error {
+  color: #d25f5f;
+}
+</style>
+
 <script>
 import FormData from 'form-data';
 import { durationMapping } from '@/const';
 import { calculateMonthlyMinRepayment } from '@/helpers';
 import { USER_SUBMIT_LOAN } from '@/store/mutation-types';
+import { required, between, numeric, minValue } from 'vuelidate/lib/validators';
+import { validationMixin } from 'vuelidate';
 
 export default {
   name: 'UserLoanForm',
+  mixins: [validationMixin],
   components: {
     FormMessage: () => import('@/components/FormMessage'),
   },
@@ -81,6 +109,26 @@ export default {
 
       durationMapping: durationMapping,
     };
+  },
+  validations: {
+    amount: {
+      required,
+      numeric,
+      minValue: minValue(1),
+    },
+    duration: {
+      required,
+      numeric,
+      between: between(1, 12),
+    },
+    interest_rate: {
+      required,
+      numeric,
+    },
+    arrangement_fee: {
+      required,
+      numeric,
+    },
   },
   computed: {
     minMonthlyRepayment() {
@@ -106,6 +154,12 @@ export default {
   },
   methods: {
     async submitLoan() {
+      this.$v.$reset();
+      this.$v.$touch();
+      if (this.$v.$invalid) {
+        return;
+      }
+
       const data = new FormData();
       data.append('amount', this.amount);
       data.append('duration', this.duration);

@@ -4,8 +4,9 @@ import router from './router';
 import store from './store';
 import Paginate from 'vuejs-paginate';
 
-Vue.component('paginate', Paginate);
 Vue.config.productionTip = false;
+
+Vue.component('paginate', Paginate);
 
 new Vue({
   router,

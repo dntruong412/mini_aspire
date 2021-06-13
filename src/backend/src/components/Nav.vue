@@ -19,7 +19,7 @@
             <router-link class="nav-link active" aria-current="page" :to="{ name: 'home' }">Home</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" aria-current="page" :to="{ name: 'users' }">Users</router-link>
+            <router-link class="nav-link" aria-current="page" :to="{ name: 'user_list' }">Users</router-link>
           </li>
         </ul>
       </div>

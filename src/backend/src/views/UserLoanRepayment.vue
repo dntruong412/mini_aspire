@@ -9,6 +9,13 @@
             <label for="amount" class="form-label fw-bold">Amount</label>
             <input type="number" class="form-control text-right" id="amount" v-model="repaymentAmount" />
           </div>
+          <div class="error" v-if="!$v.repaymentAmount.required">Field is required</div>
+          <div class="error" v-if="!$v.repaymentAmount.numeric">
+            Amount must be numeric.
+          </div>
+          <div class="error" v-if="!$v.repaymentAmount.minValue">
+            Amount must be greater than {{$v.repaymentAmount.$params.minValue.min}}.
+          </div>
         </div>
         <p>Minimum monthly repayment: {{ monthlyMinRepayment | to_currency }}</p>
         <button class="btn btn-primary" @click.prevent="submitRepayment">Submit</button>
@@ -20,14 +27,23 @@
   </form>
 </template>
 
+<style lang="css">
+.error {
+  color: #d25f5f;
+}
+</style>
+
 <script>
 import FormData from 'form-data';
 import { USER_SUBMIT_REPAYMENT } from '@/store/mutation-types';
 import { calculateMonthlyMinRepayment, currencyFormat } from '@/helpers';
 import { mapState } from 'vuex';
+import { required, numeric, minValue } from 'vuelidate/lib/validators';
+import { validationMixin } from 'vuelidate';
 
 export default {
   name: 'UserLoanRepayment',
+  mixins: [validationMixin],
   components: {
     FormMessage: () => import('@/components/FormMessage'),
     UserLoanDetail: () => import('@/views/UserLoanDetail'),
@@ -44,6 +60,13 @@ export default {
     return {
       repaymentAmount: 0,
     };
+  },
+  validations: {
+    repaymentAmount: {
+      required,
+      numeric,
+      minValue: minValue(1),
+    }
   },
   computed: {
     ...mapState({
@@ -64,6 +87,12 @@ export default {
   },
   methods: {
     async submitRepayment() {
+      this.$v.$reset();
+      this.$v.$touch();
+      if (this.$v.$invalid) {
+        return;
+      }
+
       const data = new FormData();
       data.append('amount', this.amount);
 

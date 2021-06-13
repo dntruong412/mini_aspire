@@ -5,8 +5,8 @@
       <thead>
         <tr class="bg-light">
           <th class="text-center">Amount</th>
-          <th class="text-center">Duration <br /><small class="fw-normal">(Months)</small></th>
           <th class="text-center">Debt</th>
+          <th class="text-center">Duration <br /><small class="fw-normal">(Months)</small></th>
           <th class="text-center">Interest rate <br /><small class="fw-normal">(%)</small></th>
           <th class="text-center">Repayment<br />frequency</th>
           <th class="text-center">Arrangement<br />fee</th>
@@ -19,8 +19,8 @@
       <tbody>
         <tr v-for="loan in loans" :key="loan.id">
           <td class="text-end">{{ loan.amount | to_currency }}</td>
-          <td class="text-end">{{ loan.duration }}</td>
           <td class="text-end">{{ loan.debt | to_currency }}</td>
+          <td class="text-end">{{ loan.duration }}</td>
           <td class="text-end">{{ loan.interest_rate }}</td>
           <td class="text-end">{{ loan.repayment_frequency }}</td>
           <td class="text-end">{{ loan.arrangement_fee | to_currency }}</td>

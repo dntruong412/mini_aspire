@@ -13,7 +13,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { GET_USER } from '@/store/mutation-types';
+import { USER_GET } from '@/store/mutation-types';
 
 export default {
   name: 'UserLoan',
@@ -28,7 +28,7 @@ export default {
     }),
   },
   created() {
-    this.$store.dispatch(GET_USER, this.user_id);
+    this.$store.dispatch(USER_GET, this.user_id);
   },
 };
 </script>
