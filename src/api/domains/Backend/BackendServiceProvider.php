@@ -24,6 +24,8 @@ class BackendServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+
+        $this->app['router']->aliasMiddleware('check_user_exist', \Domains\Backend\Middlewares\CheckUserExist::class);
     }
 
     /**

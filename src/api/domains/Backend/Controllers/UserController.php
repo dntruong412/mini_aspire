@@ -3,7 +3,6 @@
 namespace Domains\Backend\Controllers;
 
 use Illuminate\Http\Request;
-use Domains\Supports\Exceptions\NotFoundException;
 use Domains\Backend\Requests\User\Create as CreateRequest;
 use Domains\Backend\Requests\User\Update as UpdateRequest;
 use Domains\Backend\Requests\User\Loan as LoanRequest;
@@ -70,15 +69,10 @@ class UserController extends Controller
      *         "message": "User not found"
      *     }
      */
-    public function getById(UserModel $userModel, $userId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
+    public function getById(Request $request, UserModel $userModel, $userId) {
         return [
             'status' => 1,
-            'data'   => $user
+            'data'   => $request->user
         ];
     }
 
@@ -135,11 +129,6 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function update(UpdateRequest $request, UserModel $userModel, $userId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
         $date = new \DateTime();
 
         $user = $request->only('name', 'status');
@@ -168,11 +157,6 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function delete(UserModel $userModel, $userId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
         $userModel->deleteUser($userId);
 
         return [
@@ -199,11 +183,6 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function loan(LoanRequest $request, UserModel $userModel, $userId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
         $loanInfo = $request->only('amount', 'duration', 'interest_rate', 'arrangement_fee', 'repayment_frequency');
         $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
             new \Domains\Backend\Services\UserLoan\FixedInterestRateLoan($userId, $loanInfo)
@@ -232,11 +211,6 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function pay(PayRequest $request, UserModel $userModel, $userId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
         $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
             new \Domains\Backend\Services\UserLoan\FixedInterestRateRepayment(
                 $request->input('user_loan_id'), 
@@ -287,11 +261,6 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function getUserLoans(Request $request, UserLoanModel $userLoanModel, UserModel $userModel, $userId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
         $result = $userLoanModel->getAllLoanInfo($userId);
 
         return array_merge([
@@ -323,17 +292,17 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function getUserLoanById(UserLoanModel $userLoanModel, UserModel $userModel, $userId, $userLoanId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
+        $loanInfo = $userLoanModel->getLoanInfo($userLoanId);
+        if (!empty($loanInfo)) {
+            return [
+                'status' => 1,
+                'data'   => $loanInfo
+            ];
         }
 
-        $loanInfo = $userLoanModel->getLoanInfo($userLoanId);
-
-        return [
-            'status' => 1,
-            'data'   => $loanInfo
-        ];
+        return response()->json([
+            'status' => 0
+        ], 400);
     }
 
     /**
@@ -349,11 +318,6 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function getUserLoanRepayments(UserLoanRepaymentModel $userLoanModel, UserModel $userModel, $userId, $userLoanId) {
-        $user = $userModel->getUserById($userId);
-        if (empty($user)) {
-            throw new NotFoundException('User not found');
-        }
-
         $loanInfo = $userLoanModel->getRepaymentHistory($userLoanId);
 
         return [

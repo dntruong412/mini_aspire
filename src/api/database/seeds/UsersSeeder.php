@@ -15,7 +15,7 @@ class UsersSeeder extends Seeder
         $date = new \DateTime();
 
         $users = [];
-        for ($i=1; $i < 6; $i++) { 
+        for ($i=1; $i < 50; $i++) { 
             $users[] = [
                 'name'       => "User $i",
                 'created_at' => $date
