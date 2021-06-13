@@ -64,7 +64,7 @@ class UserModel extends Model
     public function createUser($user) {
         try {
             DB::beginTransaction();
-            DB::table($this->table)->insert($user);
+            $user['id'] = DB::table($this->table)->insertGetId($user);
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
