@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Domains\Backend\Requests\User\Create as CreateRequest;
 use Domains\Backend\Requests\User\Update as UpdateRequest;
 use Domains\Backend\Requests\User\Loan as LoanRequest;
-use Domains\Backend\Requests\User\Pay as PayRequest;
+use Domains\Backend\Requests\User\Repayment as RepaymentRequest;
 use Domains\Backend\Models\UserModel;
 use Domains\Backend\Models\UserLoanModel;
 use Domains\Backend\Models\UserLoanRepaymentModel;
@@ -69,7 +69,7 @@ class UserController extends Controller
      *         "message": "User not found"
      *     }
      */
-    public function getById(Request $request, UserModel $userModel, $userId) {
+    public function getById(Request $request) {
         return [
             'status' => 1,
             'data'   => $request->user
@@ -182,8 +182,9 @@ class UserController extends Controller
      * }
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
-    public function loan(LoanRequest $request, UserModel $userModel, $userId) {
+    public function loan(LoanRequest $request, $userId) {
         $loanInfo = $request->only('amount', 'duration', 'interest_rate', 'arrangement_fee', 'repayment_frequency');
+
         $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
             new \Domains\Backend\Services\UserLoan\FixedInterestRateLoan($userId, $loanInfo)
         );
@@ -193,36 +194,6 @@ class UserController extends Controller
             'status'  => 1,
             'message' => 'Successfully loaned',
             'data'    => $loanInfo
-        ];
-    }
-
-    /**
-     * @api {post} backend/users/:user_id/pay Submit user repayment
-     * @apiName Submit user repayment
-     * @apiGroup Backend-Users
-     * @apiParam {String} [user_loan_id] User loan id.
-     * @apiParam {Number} [amount] Amount.
-     * @apiSampleRequest backend/users/:user_id/pay
-     * @apiSuccessExample Success-Response:
-     * {
-     *     "status": 1,
-     *     "message": "Successfully paid"
-     * }
-     * @apiError (Error 5xx) DBException Unexpected database error.
-     */
-    public function pay(PayRequest $request, UserModel $userModel, $userId) {
-        $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
-            new \Domains\Backend\Services\UserLoan\FixedInterestRateRepayment(
-                $request->input('user_loan_id'), 
-                $request->input('amount')
-            )
-        );
-        $result = $userLoan->execute();
-
-        return [
-            'status'  => 1,
-            'message' => 'Successfully repaid',
-            'data'    => $result
         ];
     }
 
@@ -260,7 +231,7 @@ class UserController extends Controller
      * }
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
-    public function getUserLoans(Request $request, UserLoanModel $userLoanModel, UserModel $userModel, $userId) {
+    public function getUserLoans(UserLoanModel $userLoanModel, $userId) {
         $result = $userLoanModel->getAllLoanInfo($userId);
 
         return array_merge([
@@ -291,25 +262,19 @@ class UserController extends Controller
      * }
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
-    public function getUserLoanById(UserLoanModel $userLoanModel, UserModel $userModel, $userId, $userLoanId) {
-        $loanInfo = $userLoanModel->getLoanInfo($userLoanId);
-        if (!empty($loanInfo)) {
-            return [
-                'status' => 1,
-                'data'   => $loanInfo
-            ];
-        }
-
-        return response()->json([
-            'status' => 0
-        ], 400);
+    public function getUserLoanById(Request $request) {
+        return [
+            'status' => 1,
+            'data'   => $request->loan
+        ];
     }
 
     /**
-     * @api {get} backend/users/:user_id/loan/:user_loan_id Get user loan by id
-     * @apiName Get user loan by id
+     * @api {post} backend/users/:user_id/loan/:user_loan_id/repayments Submit user repayment
+     * @apiName Submit user repayment
      * @apiGroup Backend-Users
-     * @apiSampleRequest backend/users/:user_id/loan/:user_loan_id
+     * @apiParam {Number} [amount] Amount.
+     * @apiSampleRequest backend/users/:user_id/loan/:user_loan_id/repayments
      * @apiSuccessExample Success-Response:
      * {
      *     "status": 1,
@@ -317,7 +282,35 @@ class UserController extends Controller
      * }
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
-    public function getUserLoanRepayments(UserLoanRepaymentModel $userLoanModel, UserModel $userModel, $userId, $userLoanId) {
+    public function repayments(RepaymentRequest $request, $userId, $userLoanId) {
+        $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
+            new \Domains\Backend\Services\UserLoan\FixedInterestRateRepayment(
+                $userLoanId, 
+                $request->input('amount')
+            )
+        );
+        $result = $userLoan->execute();
+
+        return [
+            'status'  => 1,
+            'message' => 'Successfully repaid',
+            'data'    => $result
+        ];
+    }
+
+    /**
+     * @api {get} backend/users/:user_id/loan/:user_loan_id/repayments Get user loan by id
+     * @apiName Get user loan repayments by id
+     * @apiGroup Backend-Users
+     * @apiSampleRequest backend/users/:user_id/loan/:user_loan_id/repayments
+     * @apiSuccessExample Success-Response:
+     * {
+     *     "status": 1,
+     *     "message": "Successfully paid"
+     * }
+     * @apiError (Error 5xx) DBException Unexpected database error.
+     */
+    public function getUserLoanRepayments(UserLoanRepaymentModel $userLoanModel, $userId, $userLoanId) {
         $loanInfo = $userLoanModel->getRepaymentHistory($userLoanId);
 
         return [

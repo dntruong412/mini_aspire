@@ -26,6 +26,7 @@ class BackendServiceProvider extends ServiceProvider
         parent::boot();
 
         $this->app['router']->aliasMiddleware('check_user_exist', \Domains\Backend\Middlewares\CheckUserExist::class);
+        $this->app['router']->aliasMiddleware('check_user_loan_exist', \Domains\Backend\Middlewares\CheckUserLoanExist::class);
     }
 
     /**
