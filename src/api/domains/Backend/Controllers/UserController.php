@@ -185,10 +185,9 @@ class UserController extends Controller
     public function loan(LoanRequest $request, $userId) {
         $loanInfo = $request->only('amount', 'duration', 'interest_rate', 'arrangement_fee', 'repayment_frequency');
 
-        $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
+        $loanInfo = \Domains\Backend\Services\UserLoan\UserLoan::execute(
             new \Domains\Backend\Services\UserLoan\FixedInterestRateLoan($userId, $loanInfo)
         );
-        $loanInfo = $userLoan->execute();
 
         return [
             'status'  => 1,
@@ -283,17 +282,16 @@ class UserController extends Controller
      * @apiError (Error 5xx) DBException Unexpected database error.
      */
     public function repayments(RepaymentRequest $request, $userId, $userLoanId) {
-        $userLoan = new \Domains\Backend\Services\UserLoan\UserLoan(
+        $result = \Domains\Backend\Services\UserLoan\UserLoan::execute(
             new \Domains\Backend\Services\UserLoan\FixedInterestRateRepayment(
                 $userLoanId, 
                 $request->input('amount')
             )
         );
-        $result = $userLoan->execute();
 
         return [
             'status'  => 1,
-            'message' => 'Successfully repaid',
+            'message' => 'Successfully repayment',
             'data'    => $result
         ];
     }

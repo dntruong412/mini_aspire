@@ -16,7 +16,7 @@ class UserTest extends TestCase
     public function testCreateUser()
     {
         $response = $this->post(route('backend.users.create'), [
-            'name'   => 'User test 2',
+            'name'   => 'User test 1',
             'status' => 1
         ]);
         $response

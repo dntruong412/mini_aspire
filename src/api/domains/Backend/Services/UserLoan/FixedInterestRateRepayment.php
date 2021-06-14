@@ -20,8 +20,7 @@ class FixedInterestRateRepayment implements Action {
         $userLoanModel          = new UserLoanModel();
         $userLoanRepaymentModel = new UserLoanRepaymentModel();
 
-        $loanInfo           = $userLoanModel->getLoanInfo($this->userLoanId);
-        $repaymentHistories = $userLoanRepaymentModel->getRepaymentHistory($this->userLoanId);
+        $loanInfo = $userLoanModel->getLoanInfo($this->userLoanId);
 
         // Check if already repaid
         if ($loanInfo->payment_status == UserLoanModel::PAYMENT_STATUS_PAID) {
@@ -65,6 +64,8 @@ class FixedInterestRateRepayment implements Action {
         ];
 
         $userLoanRepaymentModel->submitRepayment($repaymentInfo, $this->userLoanId, $updatedLoanInfo);
+
+        unset($repaymentInfo['user_loan_id']);
 
         return array_merge($repaymentInfo, (array)$loanInfo, $updatedLoanInfo);
     }
