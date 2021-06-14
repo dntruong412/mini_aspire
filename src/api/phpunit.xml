@@ -9,7 +9,8 @@
         </testsuite>
 
         <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
+            <file>./tests/Feature/UserTest.php</file>
+            <file>./tests/Feature/UserLoanTest.php</file>
         </testsuite>
     </testsuites>
     <filter>
