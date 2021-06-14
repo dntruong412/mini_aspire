@@ -31,19 +31,6 @@ export default {
         return data;
     },
 
-    async getUserLoanRepayments(user_id, user_loan_id) {
-        const config = {
-            method: 'get',
-            url: `${resource}/${user_id}/loan/${user_loan_id}/repayments`,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-        const { data } = await axios(config);
-
-        return data;
-    },
-
     async submitLoan(user_id, postData) {
         const config = {
             method: 'post',
@@ -58,10 +45,23 @@ export default {
         return data;
     },
 
-    async submitRepayment(user_id, postData) {
+    async getUserLoanRepayments(user_id, user_loan_id) {
+        const config = {
+            method: 'get',
+            url: `${resource}/${user_id}/loan/${user_loan_id}/repayments`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        const { data } = await axios(config);
+
+        return data;
+    },
+
+    async submitRepayment(user_id, user_loan_id, postData) {
         const config = {
             method: 'post',
-            url: `${resource}/${user_id}/pay`,
+            url: `${resource}/${user_id}/loan/${user_loan_id}/repayments`,
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -116,9 +116,9 @@ export default {
         return error.response ? error.response.data : error;
       }
     },
-    async [USER_SUBMIT_REPAYMENT](context, { user_id, data }) {
+    async [USER_SUBMIT_REPAYMENT](context, { user_id, user_loan_id, data }) {
       try {
-        return await RepositoryFactory.get('UserLoan').submitRepayment(user_id, data);
+        return await RepositoryFactory.get('UserLoan').submitRepayment(user_id, user_loan_id, data);
       } catch (error) {
         return error.response ? error.response.data : error;
       }

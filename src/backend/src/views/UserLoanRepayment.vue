@@ -100,8 +100,8 @@ export default {
       try {
         result = await this.$store.dispatch(USER_SUBMIT_REPAYMENT, {
           user_id: this.user_id,
+          user_loan_id: this.user_loan_id,
           data: {
-            user_loan_id: this.user_loan_id,
             amount: this.repaymentAmount,
           },
         });
