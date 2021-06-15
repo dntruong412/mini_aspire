@@ -14,13 +14,21 @@ class UserLoanTest extends TestCase
     public function testUserLoan()
     {
         $userId = 1;
+        $loanInfo = [
+            'amount'              => 10000000,
+            'interest_rate'       => 10,
+            'arrangement_fee'     => 10000,
+            'repayment_frequency' => 10
+        ];
 
-        $anotherInterestRate = $this->createMock(\Domains\Backend\Services\UserLoan\Action::class);
+        $anotherInterestRate = $this->getMockBuilder(\Domains\Backend\Services\UserLoan\FixedInterestRateRepayment::class)
+            ->setConstructorArgs([$userId, $loanInfo])
+            ->getMock();
         $anotherInterestRate->method('execute')
-            ->willReturn([
-                'id'      => 1,
+            ->willReturn(array_merge([
+                'id'      => rand(),
                 'user_id' => $userId
-            ]);
+            ], $loanInfo));
 
         $loanInfo = \Domains\Backend\Services\UserLoan\UserLoan::execute($anotherInterestRate);
 
@@ -36,8 +44,11 @@ class UserLoanTest extends TestCase
     public function testUserRepayment()
     {
         $userLoanId = '05534a99-5072-471e-807c-74ba7a2bde8e';
+        $repaymentAmount = 1000000;
 
-        $repaymentMockObj = $this->createMock(\Domains\Backend\Services\UserLoan\Action::class);
+        $repaymentMockObj = $this->getMockBuilder(\Domains\Backend\Services\UserLoan\FixedInterestRateRepayment::class)
+            ->setConstructorArgs([$userLoanId, $repaymentAmount])
+            ->getMock();
         $repaymentMockObj->method('execute')
             ->willReturn([
                 'id' => $userLoanId,
